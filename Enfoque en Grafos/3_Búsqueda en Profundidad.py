@@ -12,3 +12,10 @@ from collections import defaultdict
     'Portal 2': ['Puzzle', 'FPS', 'Ciencia Ficción'],
     'Hollow Knight': ['Metroidvania', 'Difícil', 'Aventura']
 }
+
+grafos_recomendaciones = defaultdict(list)
+for juego, generos in videojuegos.items():
+    for genero in generos:
+        grafos_recomendaciones[genero].append(juego)
+
+def 
