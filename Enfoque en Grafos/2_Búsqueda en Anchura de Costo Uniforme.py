@@ -11,3 +11,22 @@ reino_magico = {
     'Castillo del Rey': {'Montaña Nevada': 15, 'Ciudad Esmeralda': 3},
     'Isla Perdida': {'Pantano Sombrío': 12}
 }
+
+def viaje_mas_economico(grafo, inicio, destino):
+    """
+    Encuentra el viaje más económico entre dos ciudades usando UCS.
+    Devuelve el camino y el costo total.
+    """
+    # Cola de prioridad: (costo_acumulado, ciudad_actual, camino)
+    frontera = []
+
+    heapq.heappush(frontera, (0, inicio, []))
+    
+    ciudades_visitadas = set()
+    
+    while frontera:
+        costo, ciudad, camino = heapq.heappop(frontera)
+        
+        if ciudad == dest
+
+        
