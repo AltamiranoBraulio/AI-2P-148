@@ -27,4 +27,22 @@ def dfs_recomendaciones(inicio, profundidad_max=3):
 
     while pila:
         nodo, profundidad, camino = pila.pop()
-        
+
+
+        if nodo not in visitados and profundidad <= profundidad_max:
+            visitados.add(nodo)
+           
+           if nodo in videojuegos ans nodo != inicio:
+                recomendaciones.append(nodo, camino.copy(), profundidad)
+
+                if nodo in grafos_recomendaciones:
+                     for conexiones in grafos_recomendaciones[nodo]:
+                       if conexion not in visitados:
+                            nuevo_camino = camino + [conexiones]
+                            pila.append((conexion, profundidad + 1, nuevo_camino))
+
+            elif nodo in videojuegos:
+                for genero in videojuegos[nodo]:
+                     if genero not in visitados:
+                          nuevo_camino = camino + [genero]
+                          pila.append((genero, profundidad + 1, nuevo_camino))
