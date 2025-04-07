@@ -1,6 +1,6 @@
 from collections import deque
 
-red social= {
+red_social= {
     'Tú': ['Ana', 'Juan', 'Luis'],
     'Ana': ['Tú', 'Carlos'],
     'Juan': ['Tú', 'Mario'],
@@ -10,7 +10,7 @@ red social= {
     'Marta': ['Luis', 'Famoso'],  # ¡Marta conoce al famoso!
     'Pedro': ['Carlos'],
     'Famoso': ['Marta']
-}
+    }
 def bfs(red, inicio, objetivo):
     """
      Búsqueda en Anchura (BFS) simplificada.
