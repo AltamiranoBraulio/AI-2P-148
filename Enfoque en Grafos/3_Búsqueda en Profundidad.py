@@ -18,4 +18,13 @@ for juego, generos in videojuegos.items():
     for genero in generos:
         grafos_recomendaciones[genero].append(juego)
 
-def 
+def dfs_recomendaciones(inicio, profundidad_max=3):
+
+    visitados = set()
+    recomendaciones = []
+
+    pila = [(inicio, 0)]
+
+    while pila:
+        nodo, profundidad, camino = pila.pop()
+        
