@@ -1,5 +1,6 @@
 import heapq
 import time
+
 # Mapa del reino mágico con costos de viaje (en monedas de oro)
 reino_magico = {
     'Aldea Inicial': {'Valle Brillante': 5, 'Bosque Encantado': 3},
@@ -19,7 +20,6 @@ def viaje_mas_economico(grafo, inicio, destino):
     """
     # Cola de prioridad: (costo_acumulado, ciudad_actual, camino)
     frontera = []
-
     heapq.heappush(frontera, (0, inicio, []))
     
     ciudades_visitadas = set()
@@ -28,8 +28,7 @@ def viaje_mas_economico(grafo, inicio, destino):
         costo, ciudad, camino = heapq.heappop(frontera)
         
         if ciudad == destino:
-
-        return camino + [ciudad], costo
+            return camino + [ciudad], costo  # Esta línea DEBE estar indentada
         
         if ciudad not in ciudades_visitadas:
             ciudades_visitadas.add(ciudad)
@@ -47,6 +46,7 @@ def viaje_mas_economico(grafo, inicio, destino):
 # Simulación del viaje
 print("🏰 ¡Bienvenido al Planificador de Viajes del Reino Mágico! 🏰")
 print("Calculando la ruta más económica...\n")
+
 inicio = 'Aldea Inicial'
 destino = 'Castillo del Rey'
 
@@ -56,7 +56,7 @@ if camino:
     print("\n⚡ ¡Ruta encontrada! ⚡")
     print(f"📍 Camino: {' → '.join(camino)}")
     print(f"💰 Costo total: {costo} monedas de oro")
-      # Análisis de rutas alternativas
+    
     print("\nOtras rutas posibles:")
     print("1. Aldea Inicial → Valle Brillante → Castillo del Rey (Costo: 5 + 15 = 20)")
     print("2. Aldea Inicial → Bosque Encantado → Ciudad Esmeralda → Castillo del Rey (Costo: 3 + 6 + 3 = 12)")
