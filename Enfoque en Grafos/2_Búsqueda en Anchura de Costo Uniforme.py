@@ -27,7 +27,7 @@ def viaje_mas_economico(grafo, inicio, destino):
     while frontera:
         costo, ciudad, camino = heapq.heappop(frontera)
         
-        if ciudad == dest
+        if ciudad == destino:
 
         return camino + [ciudad], costo
         
