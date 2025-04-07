@@ -29,4 +29,36 @@ def viaje_mas_economico(grafo, inicio, destino):
         
         if ciudad == dest
 
+        return camino + [ciudad], costo
         
+        if ciudad not in ciudades_visitadas:
+            ciudades_visitadas.add(ciudad)
+            
+            print(f"✨ Visitando {ciudad} (Costo acumulado: {costo} monedas)")
+            time.sleep(1)  # Pausa dramática
+            
+            for ciudad_vecina, costo_viaje in grafo[ciudad].items():
+                if ciudad_vecina not in ciudades_visitadas:
+                    nuevo_camino = camino + [ciudad]
+                    heapq.heappush(frontera, (costo + costo_viaje, ciudad_vecina, nuevo_camino))
+    
+    return None, float('inf')
+
+# Simulación del viaje
+print("🏰 ¡Bienvenido al Planificador de Viajes del Reino Mágico! 🏰")
+print("Calculando la ruta más económica...\n")
+inicio = 'Aldea Inicial'
+destino = 'Castillo del Rey'
+
+camino, costo = viaje_mas_economico(reino_magico, inicio, destino)
+
+if camino:
+    print("\n⚡ ¡Ruta encontrada! ⚡")
+    print(f"📍 Camino: {' → '.join(camino)}")
+    print(f"💰 Costo total: {costo} monedas de oro")
+      # Análisis de rutas alternativas
+    print("\nOtras rutas posibles:")
+    print("1. Aldea Inicial → Valle Brillante → Castillo del Rey (Costo: 5 + 15 = 20)")
+    print("2. Aldea Inicial → Bosque Encantado → Ciudad Esmeralda → Castillo del Rey (Costo: 3 + 6 + 3 = 12)")
+else:
+    print("No hay ruta disponible hasta el destino.")
