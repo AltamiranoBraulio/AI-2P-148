@@ -29,3 +29,17 @@ def dfs_limitado(nodo, objetivo, limite, camino):
         if resultado:
             return resultado
     
+     camino.pop()
+    return None
+
+# IDDFS principal
+def iddfs(inicio, objetivo, max_profundidad):
+    for profundidad in range(max_profundidad + 1):
+        print(f"\n🔎 Buscando con límite de profundidad: {profundidad}")
+        camino = []
+        resultado = dfs_limitado(inicio, objetivo, profundidad, camino)
+        if resultado:
+            return resultado
+    return None
+
+
