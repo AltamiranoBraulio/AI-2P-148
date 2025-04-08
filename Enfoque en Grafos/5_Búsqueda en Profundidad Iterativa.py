@@ -17,4 +17,15 @@ def dfs_limitado(nodo, objetivo, limite, camino):
     time.sleep(0.5)  # Efecto visual
     camino.append(nodo)
 
+     if nodo == objetivo:
+        return camino
+    
+    if limite <= 0:
+        camino.pop()
+        return None
+
+    for vecino in mazmorra.get(nodo, []):
+        resultado = dfs_limitado(vecino, objetivo, limite - 1, camino)
+        if resultado:
+            return resultado
     
