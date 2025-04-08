@@ -10,3 +10,11 @@ mazmorra = {
     "Tesoro": []
 
 }
+
+# DFS con límite de profundidad
+def dfs_limitado(nodo, objetivo, limite, camino):
+    print(f"Explorando: {nodo} (límite: {limite})")
+    time.sleep(0.5)  # Efecto visual
+    camino.append(nodo)
+
+    
