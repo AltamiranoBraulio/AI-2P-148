@@ -1,139 +1,103 @@
-from typing import List, Optional, Tuple
+import random
+from math import sqrt
+from typing import List, Tuple, Dict
 
-class PasoReceta:
-    """Representa un paso en la preparación de una receta"""
-    
-    def __init__(self, nombre: str, tipo: str, tiempo: int, descripcion: str):
-        """
-        Args:
-            nombre: Nombre del paso (ej. 'Cortar verduras')
-            tipo: 'AND' (obligatorio) o 'OR' (alternativas)
-            tiempo: Minutos requeridos
-            descripcion: Instrucciones detalladas
-        """
-        self.nombre = nombre
-        self.tipo = tipo
-        self.tiempo = tiempo
-        self.descripcion = descripcion
-        self.completado = False
-        self.siguientes: List[List['PasoReceta']] = []
-    
-    def agregar_opciones(self, *opciones: List['PasoReceta']):
-        """Añade posibles pasos siguientes"""
-        self.siguientes.extend(opciones)
-    
-    def __repr__(self):
-        return f"{self.nombre} ({self.tipo}) - ⏱️{self.tiempo}min"
+# Representación de puntos en el mapa (coordenadas x, y y nombre del lugar)
+Punto = Tuple[float, float, str]
 
-def ao_cocina(inicio: PasoReceta, tiempo_max: int) -> Optional[List[PasoReceta]]:
-    """
-    Algoritmo AO* adaptado para planificación de recetas
+class RepartidorPizzas:
+    def __init__(self, ubicaciones: List[Punto]):
+        self.ubicaciones = ubicaciones
+        self.mejor_ruta = None
+        self.mejor_distancia = float('inf')
     
-    Args:
-        inicio: Paso inicial de la receta
-        tiempo_max: Tiempo máximo disponible en minutos
+    def distancia(self, a: Punto, b: Punto) -> float:
+        """Calcula la distancia euclidiana entre dos puntos"""
+        return sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
     
-    Returns:
-        Secuencia óptima de pasos o None si no es posible
-    """
-    mejor_plan = None
-    menor_tiempo = float('inf')
+    def distancia_total(self, ruta: List[Punto]) -> float:
+        """Calcula la distancia total de una ruta"""
+        total = 0
+        for i in range(len(ruta)-1):
+            total += self.distancia(ruta[i], ruta[i+1])
+        # Regresar al punto inicial
+        total += self.distancia(ruta[-1], ruta[0])
+        return total
     
-    def buscar(paso_actual: PasoReceta, plan_actual: List[PasoReceta], tiempo_actual: int):
-        nonlocal mejor_plan, menor_tiempo
+    def generar_vecino(self, ruta: List[Punto]) -> List[Punto]:
+        """Genera una ruta vecina intercambiando dos puntos aleatorios"""
+        vecino = ruta.copy()
+        i, j = random.sample(range(len(vecino)), 2)
+        vecino[i], vecino[j] = vecino[j], vecino[i]
+        return vecino
+    
+    def escalar_colina(self, max_iter=1000):
+        """Implementación de la búsqueda de ascensión de colinas"""
+        # Ruta inicial aleatoria
+        ruta_actual = self.ubicaciones.copy()
+        random.shuffle(ruta_actual)
+        distancia_actual = self.distancia_total(ruta_actual)
         
-        if tiempo_actual > tiempo_max:
-            return
-        
-        if not paso_actual.siguientes:  # Fin de la receta
-            if tiempo_actual < menor_tiempo:
-                menor_tiempo = tiempo_actual
-                mejor_plan = plan_actual.copy()
-            return
-        
-        for opcion in paso_actual.siguientes:
-            if paso_actual.tipo == 'AND':
-                # Todos los pasos de esta opción son obligatorios
-                nuevo_plan = plan_actual.copy()
-                nuevo_tiempo = tiempo_actual
-                posible = True
+        for _ in range(max_iter):
+            # Generar vecino
+            vecino = self.generar_vecino(ruta_actual)
+            distancia_vecino = self.distancia_total(vecino)
+            
+            # Si el vecino es mejor, movernos allí
+            if distancia_vecino < distancia_actual:
+                ruta_actual, distancia_actual = vecino, distancia_vecino
                 
-                for paso in opcion:
-                    if nuevo_tiempo + paso.tiempo > tiempo_max:
-                        posible = False
-                        break
-                    nuevo_plan.append(paso)
-                    nuevo_tiempo += paso.tiempo
-                
-                if posible:
-                    buscar(opcion[-1], nuevo_plan, nuevo_tiempo)
+                # Actualizar mejor solución encontrada
+                if distancia_actual < self.mejor_distancia:
+                    self.mejor_ruta = ruta_actual.copy()
+                    self.mejor_distancia = distancia_actual
             else:
-                # Elegir una de las alternativas (OR)
-                for paso in opcion:
-                    if tiempo_actual + paso.tiempo <= tiempo_max:
-                        nuevo_plan = plan_actual.copy()
-                        nuevo_plan.append(paso)
-                        buscar(paso, nuevo_plan, tiempo_actual + paso.tiempo)
-    
-    buscar(inicio, [inicio], inicio.tiempo)
-    return mejor_plan
-
-# Creación de la receta
-def crear_receta_compleja() -> PasoReceta:
-    """Crea una receta con pasos AND/OR"""
-    # Pasos iniciales (todos AND)
-    inicio = PasoReceta("Preparar ingredientes", "AND", 10, "Reunir todos los ingredientes")
-    calentar_horno = PasoReceta("Calentar horno", "AND", 15, "Precalentar a 180°C")
-    preparar_molde = PasoReceta("Engrasar molde", "AND", 5, "Enmantecar y enharinar")
-    
-    # Opciones para la masa (OR)
-    mezcla_tradicional = PasoReceta("Mezcla tradicional", "AND", 10, "Mezclar harina, huevos y leche")
-    mezcla_light = PasoReceta("Mezcla light", "AND", 15, "Sustituir con ingredientes bajos en calorías")
-    
-    # Pasos finales (AND)
-    hornear = PasoReceta("Hornear", "AND", 30, "Hornear hasta dorar")
-    decorar = PasoReceta("Decorar", "OR", 10, "Agregar toppings")
-    servir = PasoReceta("Servir", "AND", 5, "Presentar en plato")
-    
-    # Opciones de decoración (OR)
-    frutas = PasoReceta("Con frutas", "AND", 8, "Agregar fresas y kiwi")
-    chocolate = PasoReceta("Con chocolate", "AND", 7, "Bañar con salsa de chocolate")
-    natural = PasoReceta("Natural", "AND", 2, "Servir sin decoración")
-    
-    # Estructurar la receta
-    inicio.agregar_opciones([calentar_horno, preparar_molde])
-    calentar_horno.agregar_opciones([mezcla_tradicional], [mezcla_light])
-    mezcla_tradicional.agregar_opciones([hornear])
-    mezcla_light.agregar_opciones([hornear])
-    hornear.agregar_opciones([decorar])
-    decorar.agregar_opciones([frutas], [chocolate], [natural])
-    frutas.agregar_opciones([servir])
-    chocolate.agregar_opciones([servir])
-    natural.agregar_opciones([servir])
-    
-    return inicio
+                # Podríamos agregar aquí criterios de terminación temprana
+                continue
+        
+        return self.mejor_ruta, self.mejor_distancia
 
 # Ejemplo de uso
 if __name__ == "__main__":
-    print("🍽️ PLANIFICADOR DE RECETAS CON AO* 🧑‍🍳")
-    print("Este algoritmo te ayuda a encontrar la forma más rápida de preparar una receta compleja")
+    # Pizzería y puntos de entrega
+    ubicaciones = [
+        (0, 0, "Pizzería"),       # Punto de partida
+        (2, 4, "Casa de Juan"),
+        (3, 1, "Oficina A"),
+        (5, 2, "Oficina B"),
+        (4, 5, "Casa de María"),
+        (1, 3, "Parque")
+    ]
     
-    receta = crear_receta_compleja()
-    tiempo_disponible = 60  # minutos
+    repartidor = RepartidorPizzas(ubicaciones)
+    mejor_ruta, distancia = repartidor.escalar_colina()
     
-    plan = ao_cocina(receta, tiempo_disponible)
+    print("🚴 Optimización de Ruta para Repartidor de Pizzas 🍕")
+    print("\n📍 Puntos de entrega:")
+    for punto in ubicaciones:
+        print(f"- {punto[2]} ({punto[0]}, {punto[1]})")
     
-    if plan:
-        print(f"\n¡Receta completable en {sum(p.tiempo for p in plan)} minutos!")
-        print("\nPasos a seguir:")
-        for i, paso in enumerate(plan, 1):
-            print(f"{i}. {paso.nombre} (⏱️{paso.tiempo}min)")
-            print(f"   → {paso.descripcion}")
-        
-        print("\nOpciones elegidas:")
-        for paso in plan:
-            if paso.tipo == 'OR':
-                print(f"- En lugar de otras alternativas, elegiste: {paso.nombre}")
-    else:
-        print(f"\nNo es posible completar la receta en {tiempo_disponible} minutos 😢")
-        print("Prueba aumentando el tiempo o simplificando la receta")
+    print("\n🔍 Mejor ruta encontrada:")
+    for i, punto in enumerate(mejor_ruta, 1):
+        print(f"{i}. {punto[2]} ({punto[0]}, {punto[1]})")
+    print(f"↩️ Volver a Pizzería (0, 0)")
+    
+    print(f"\n📏 Distancia total: {distancia:.2f} km")
+    
+    # Visualización simple
+    print("\n🗺️ Representación gráfica:")
+    max_x = max(p[0] for p in ubicaciones) + 1
+    max_y = max(p[1] for p in ubicaciones) + 1
+    
+    for y in range(int(max_y), -1, -1):
+        for x in range(int(max_x)+1):
+            for punto in mejor_ruta:
+                if x == punto[0] and y == punto[1]:
+                    print("📍", end="")
+                    break
+            else:
+                if x == 0 and y == 0:
+                    print("🍕", end="")
+                else:
+                    print("·", end="")
+        print()
