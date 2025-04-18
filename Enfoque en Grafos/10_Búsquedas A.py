@@ -46,7 +46,7 @@ class Laberinto:
                 if camino and (i, j) in camino:
                     print('*', end=' ')
                 else:
-                    print(self.SIMBOLOS.get(self.grid[i][j], end=' ')
+                    print(self.SIMBOLOS.get(self.grid[i][j]), end=' ')  # Error corregido aquí
             print()
 
 def distancia_chebyshev(a: Tuple[int, int], b: Tuple[int, int]) -> int:
@@ -158,7 +158,7 @@ if __name__ == "__main__":
     laberinto.mostrar()
     
     print("\nBuscando camino óptimo con A*...")
-    camino = a_estresta(laberinto)
+    camino = a_estrella(laberinto)  # Error de nombre corregido aquí (era a_estresta)
     
     if camino:
         print("\n¡Camino encontrado!")
