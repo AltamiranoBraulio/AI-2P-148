@@ -26,3 +26,17 @@ heuristicas_gdl = {
     'Periférico Belenes': 3,
     'San Andrés': 2
 }
+def buscar_ruta_metro(origen, destino):
+    cola_prioridad = []
+    heapq.heappush(cola_prioridad, (heuristicas_gdl[origen], origen, [origen]))
+    visitados = set()
+    print(f"🔍 Buscando ruta de {origen} a {destino}...")
+    while cola_prioridad:
+        _, estacion, ruta = heapq.heappop(cola_prioridad)
+        if estacion == destino:
+            print(f"\n🎉 Ruta encontrada ({len(ruta)-1} transbordos):")
+            print(" → ".join(ruta))
+            print("\n🚇 Estaciones:", len(ruta))
+            print("🔄 Transbordos:", len([x for x in ruta if x == 'Juárez'])-1)
+            return ruta
+
