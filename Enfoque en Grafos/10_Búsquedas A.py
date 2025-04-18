@@ -36,3 +36,15 @@ class Laberinto:
         return (0 <= fila < self.filas and 
                 0 <= col < self.columnas and 
                 self.grid[fila][col] not in ('#', 'G'))
+    
+    def mostrar(self, camino: List[Tuple[int, int]] = None):
+        """Muestra el laberinto, opcionalmente con un camino marcado."""
+        for i in range(self.filas):
+            for j in range(self.columnas):
+                if camino and (i, j) in camino:
+                    print('*', end=' ')
+                else:
+                    print(self.SIMBOLOS.get(self.grid[i][j], end=' ')
+            print()
+
+    
