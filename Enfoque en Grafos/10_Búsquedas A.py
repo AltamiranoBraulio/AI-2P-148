@@ -13,10 +13,26 @@ class Laberinto:
         'V': 'V'      # Visitado (para depuración)
     }
 
-    def __init__(self, laberinto: List[List[str]], raton: Tuple[int, int], queso: Tuple[int, int], gato: Tuple[int, int]):
-        self.laberinto = laberinto
-        self.raton = raton
-        self.queso = queso
-        self.gato = gato
-        self.filas = len(laberinto)
-        self.columnas = len(laberinto[0]) if self.filas > 0 else 0
+    def __init__(self, filas: int, columnas: int):
+        self.filas = filas
+        self.columnas = columnas
+        self.grid = [[' ' for _ in range(columnas)] for _ in range(filas)]
+        self.raton_pos = None
+        self.queso_pos = None
+        self.gatos_pos = []
+
+    def agregar_elemento(self, fila: int, col: int, elemento: str):
+        """Agrega un elemento al laberinto."""
+        if elemento == 'R':
+            self.raton_pos = (fila, col)
+        elif elemento == 'Q':
+            self.queso_pos = (fila, col)
+        elif elemento == 'G':
+            self.gatos_pos.append((fila, col))
+        self.grid[fila][col] = elemento
+
+    def es_valido(self, fila: int, col: int) -> bool:
+        """Verifica si una posición es válida y transitable."""
+        return (0 <= fila < self.filas and 
+                0 <= col < self.columnas and 
+                self.grid[fila][col] not in ('#', 'G'))
