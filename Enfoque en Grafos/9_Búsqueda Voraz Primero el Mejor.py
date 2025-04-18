@@ -47,4 +47,10 @@ def buscar_ruta_metro(origen, destino):
                                  (heuristicas_gdl[conexion], 
                                   conexion, 
                                   ruta + [conexion]))
+    print("\n⚠️ No hay ruta disponible")
+    return None
+print("=== SISTEMA DE RUTAS DEL METRO DE GUADALAJARA ===")
+origen = 'Periférico Sur'
+destino = 'Plaza Universidad'
+buscar_ruta_metro(origen, destino)
 
