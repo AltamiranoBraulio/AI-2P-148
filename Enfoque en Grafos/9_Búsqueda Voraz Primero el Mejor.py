@@ -39,4 +39,12 @@ def buscar_ruta_metro(origen, destino):
             print("\n🚇 Estaciones:", len(ruta))
             print("🔄 Transbordos:", len([x for x in ruta if x == 'Juárez'])-1)
             return ruta
+        if estacion not in visitados:
+            visitados.add(estacion)
+            for conexion, _ in metro_gdl.get(estacion, {}).items():
+                if conexion not in visitados:
+                    heapq.heappush(cola_prioridad, 
+                                 (heuristicas_gdl[conexion], 
+                                  conexion, 
+                                  ruta + [conexion]))
 
