@@ -71,4 +71,19 @@ def busqueda_tabu(self, max_iter: int = 100):
                         mejor_distancia = distancia
                         mejor_movimiento = movimiento
 
-                        
+                        if mejor_vecino is not None:
+                ruta_actual = mejor_vecino
+                distancia_actual = mejor_distancia
+                
+                # 6. Actualizar lista tabú
+                self.lista_tabu.append(mejor_movimiento)
+                if len(self.lista_tabu) > self.tamano_tabu:
+                    self.lista_tabu.pop(0)
+                
+                # 7. Actualizar mejor solución global
+                if distancia_actual < self.mejor_distancia:
+                    self.mejor_ruta = ruta_actual.copy()
+                    self.mejor_distancia = distancia_actual
+                    print(f"Iter {iteracion}: Nueva mejor distancia: {self.mejor_distancia:.2f}")
+        
+        return self.mejor_ruta, self.mejor_distancia
