@@ -54,3 +54,21 @@ def busqueda_tabu(self, max_iter: int = 100):
             mejor_vecino = None
             mejor_distancia = float('inf')
             mejor_movimiento = None
+
+            for vecino in vecinos:
+                # Encontrar qué puntos se intercambiaron
+                cambios = [(i, vecino[i]) for i in range(len(vecino)) 
+                          if vecino[i] != ruta_actual[i]]
+                movimiento = tuple(sorted((cambios[0][0], cambios[1][0])))
+                
+                distancia = self.distancia_total(vecino)
+                
+                # 4. Verificar si es el mejor vecino no tabú o cumple aspiración
+                if (movimiento not in self.lista_tabu) or \
+                   (self.criterio_aspiración(distancia)):
+                    if distancia < mejor_distancia:
+                        mejor_vecino = vecino
+                        mejor_distancia = distancia
+                        mejor_movimiento = movimiento
+
+                        
