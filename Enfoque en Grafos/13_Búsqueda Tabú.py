@@ -87,3 +87,26 @@ def busqueda_tabu(self, max_iter: int = 100):
                     print(f"Iter {iteracion}: Nueva mejor distancia: {self.mejor_distancia:.2f}")
         
         return self.mejor_ruta, self.mejor_distancia
+
+if __name__ == "__main__":
+    # Puntos en la ciudad: (x, y, nombre)
+    puntos = [
+        (0, 0, "Base"),          # Punto de partida
+        (2, 4, "Aeropuerto"),
+        (3, 1, "Centro Comercial"),
+        (5, 2, "Estación Central"),
+        (4, 5, "Teatro"),
+        (1, 3, "Hospital")
+    ]
+    
+    print("🚖 Optimización de Ruta para Taxi con Búsqueda Tabú 🚖")
+    print("Objetivo: Minimizar la distancia recorrida visitando todos los puntos")
+    
+    optimizador = OptimizadorRutas(puntos)
+    mejor_ruta, distancia = optimizador.busqueda_tabu()
+    
+    print("\n📍 Mejor ruta encontrada:")
+    for i, punto in enumerate(mejor_ruta, 1):
+        print(f"{i}. {punto[2]} ({punto[0]}, {punto[1]})")
+    print(f"↩️ Volver a Base (0, 0)")
+    
