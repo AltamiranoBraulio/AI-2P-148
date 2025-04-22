@@ -22,3 +22,12 @@ for i in range(len(ruta)-1):
         # Regresar al punto inicial
         total += self.distancia(ruta[-1], ruta[0])
         return total
+def generar_vecinos(self, ruta: List[Punto]) -> List[List[Punto]]:
+        """Genera vecinos intercambiando dos puntos aleatorios"""
+        vecinos = []
+        for _ in range(5):  # Generar 5 vecinos
+            vecino = ruta.copy()
+            i, j = random.sample(range(len(vecino)), 2)
+            vecino[i], vecino[j] = vecino[j], vecino[i]
+            vecinos.append(vecino)
+        return vecinos
