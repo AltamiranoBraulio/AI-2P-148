@@ -12,3 +12,13 @@ class OptimizadorRutas:
         self.mejor_ruta = None
         self.mejor_distancia = float('inf')
 
+    def distancia(self, a: Punto, b: Punto) -> float:
+        return sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
+
+        def distancia_total(self, ruta: List[Punto]) -> float:
+        total = 0
+for i in range(len(ruta)-1):
+            total += self.distancia(ruta[i], ruta[i+1])
+        # Regresar al punto inicial
+        total += self.distancia(ruta[-1], ruta[0])
+        return total
