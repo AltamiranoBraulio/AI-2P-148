@@ -1,89 +1,77 @@
-import copy
+def tiene_conflicto(poder1, poder2):
+    """Verifica si dos poderes son conflictivos."""
+    conflictos = {
+        "Manipulación Elemental (Fuego)": ["Manipulación Elemental (Hielo)"],
+        "Manipulación Elemental (Hielo)": ["Manipulación Elemental (Fuego)"],
+        "Manipulación Elemental (Agua)": ["Manipulación Elemental (Fuego)"],
+        "Manipulación Elemental (Fuego)": ["Manipulación Elemental (Agua)"],
+    }
+    return poder2 in conflictos.get(poder1, [])
 
-class GeneradorEquipos:
-    def __init__(self):
-        # Jugadores y sus habilidades
-        self.jugadores = {
-            'Alex': 8,
-            'Brenda': 6,
-            'Carlos': 7,
-            'Dani': 4,
-            'Elena': 3,
-            'Fer': 5,
-            'Gina': 4,
-            'Hugo': 6
-        }
+def forward_checking_superpoderes(invitados, dominios, restricciones, asignacion):
+    """
+    Aplica Comprobación Hacia Delante para asignar superpoderes únicos a invitados.
+    """
+    if len(asignacion) == len(invitados):
+        return asignacion  # Solución encontrada
 
-        # Restricciones de enemigos (no pueden estar juntos)
-        self.enemigos = [('Alex', 'Carlos'), ('Gina', 'Dani')]
+    invitado_actual = invitados[len(asignacion)]
+    for poder in list(dominios[invitado_actual]):  # Iterar sobre una copia para permitir modificaciones
+        asignacion[invitado_actual] = poder
+        dominios_futuros = {inv: set(dom) for inv, dom in dominios.items()}  # Copia de los dominios
 
-        # Restricciones de amigos (deben estar juntos)
-        self.amigos = [('Elena', 'Fer')]
+        consistente = True
+        for siguiente_invitado in invitados[len(asignacion) + 1:]:
+            dominio_reducido = set()
+            for poder_futuro in dominios[siguiente_invitado]:
+                cumple_restricciones = True
+                # Verificar restricciones con la asignación actual
+                for inv_asignado, poder_asignado in asignacion.items():
+                    if poder_futuro == poder_asignado:  # Verificar unicidad
+                        cumple_restricciones = False
+                        break
+                    if (invitado_actual == "Ana" and inv_asignado == "Beto" and tiene_conflicto(poder, poder_asignado)) or \
+                       (invitado_actual == "Beto" and inv_asignado == "Ana" and tiene_conflicto(poder, poder_asignado)) or \
+                       (invitado_actual == "Carlos" and inv_asignado == "Diana" and poder == "Telequinesis" and poder_asignado == "Vuelo") or \
+                       (invitado_actual == "Diana" and inv_asignado == "Carlos" and poder == "Vuelo" and poder_asignado == "Telequinesis"):
+                        cumple_restricciones = False
+                        break
+                if cumple_restricciones:
+                    dominio_reducido.add(poder_futuro)
 
-        # Diferencia máxima de habilidades permitida
-        self.diferencia_max = 10  # Subimos el límite un poco para permitir soluciones
+            if not dominio_reducido:
+                consistente = False
+                break
+            dominios_futuros[siguiente_invitado] = dominio_reducido
 
-    def verificar_restricciones(self, equipos):
-        for equipo in equipos.values():
-            # Verificar enemigos
-            for a, b in self.enemigos:
-                if a in equipo and b in equipo:
-                    return False
-        # Verificar amigos estén juntos
-        for a, b in self.amigos:
-            juntos = any(a in equipo and b in equipo for equipo in equipos.values())
-            if not juntos:
-                return False
-        return True
-
-    def balance_ok(self, equipos):
-        suma1 = sum(self.jugadores[j] for j in equipos['Equipo 1'])
-        suma2 = sum(self.jugadores[j] for j in equipos['Equipo 2'])
-        return abs(suma1 - suma2) <= self.diferencia_max
-
-    def forward_checking(self, jugadores_restantes, equipos):
-        if not jugadores_restantes:
-            if self.verificar_restricciones(equipos) and self.balance_ok(equipos):
-                return equipos
-            return None
-
-        jugador = jugadores_restantes[0]
-
-        for equipo_nombre in equipos:
-            nuevos_equipos = copy.deepcopy(equipos)
-            nuevos_equipos[equipo_nombre].append(jugador)
-
-            if not self.verificar_restricciones(nuevos_equipos):
-                continue
-
-            resultado = self.forward_checking(jugadores_restantes[1:], nuevos_equipos)
+        if consistente:
+            resultado = forward_checking_superpoderes(invitados, dominios_futuros, restricciones, asignacion)
             if resultado:
                 return resultado
 
-        return None
+        del asignacion[invitado_actual]  # Backtrack si la asignación no lleva a solución
 
-    def generar(self):
-        jugadores_lista = list(self.jugadores.keys())
-        equipos_iniciales = {'Equipo 1': [], 'Equipo 2': []}
-        return self.forward_checking(jugadores_lista, equipos_iniciales)
+    return None
 
-# ---------------- EJECUCIÓN ----------------
+# Definición del problema
+invitados = ["Ana", "Beto", "Carlos", "Diana"]
+dominios_iniciales = {
+    "Ana": {"Fuerza Sobrehumana", "Telequinesis", "Vuelo", "Control del Tiempo", "Invisibilidad", "Manipulación Elemental (Fuego)", "Manipulación Elemental (Agua)", "Manipulación Elemental (Hielo)"},
+    "Beto": {"Fuerza Sobrehumana", "Telequinesis", "Vuelo", "Control del Tiempo", "Invisibilidad", "Manipulación Elemental (Fuego)", "Manipulación Elemental (Agua)", "Manipulación Elemental (Hielo)"},
+    "Carlos": {"Fuerza Sobrehumana", "Telequinesis", "Vuelo", "Control del Tiempo", "Invisibilidad", "Manipulación Elemental (Fuego)", "Manipulación Elemental (Agua)", "Manipulación Elemental (Hielo)"},
+    "Diana": {"Fuerza Sobrehumana", "Telequinesis", "Vuelo", "Control del Tiempo", "Invisibilidad", "Manipulación Elemental (Fuego)", "Manipulación Elemental (Agua)", "Manipulación Elemental (Hielo)"},
+}
+restricciones = [
+    ("Ana", "Beto", lambda a, b: not tiene_conflicto(a, b)),
+    ("Carlos", "Diana", lambda c, d: not (c == "Telequinesis" and d == "Vuelo")),
+]
 
-if __name__ == "__main__":
-    print("🎮 Generador de Equipos Balanceados para Torneo con Forward Checking\n")
+# Ejecutar la búsqueda con Comprobación Hacia Delante
+solucion = forward_checking_superpoderes(invitados, dominios_iniciales, restricciones, {})
 
-    generador = GeneradorEquipos()
-    resultado = generador.generar()
-
-    if resultado:
-        print("✅ Equipos generados con éxito:\n")
-        for nombre_equipo, jugadores in resultado.items():
-            total_habilidad = sum(generador.jugadores[j] for j in jugadores)
-            print(f"🏆 {nombre_equipo} (Total habilidad: {total_habilidad})")
-            for jugador in jugadores:
-                print(f"   - {jugador} (Habilidad: {generador.jugadores[jugador]})")
-            print()
-    else:
-        print("❌ No se pudo generar una combinación válida de equipos.")
-#     # Llamar a la función principal para ejecutar el programa
-#     main()            
+if solucion:
+    print("¡Asignación de superpoderes exitosa!")
+    for invitado, poder in solucion.items():
+        print(f"{invitado}: {poder}")
+else:
+    print("No se encontró una asignación de superpoderes que cumpla con todas las restricciones.")
