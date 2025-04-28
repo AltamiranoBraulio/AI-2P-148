@@ -1,0 +1,185 @@
+# Importación de módulos necesarios
+import random  # Para generación de números aleatorios
+from collections import defaultdict  # Para diccionarios con valores por defecto
+
+class MuseoEstacionario:
+    def __init__(self):
+        """
+        Constructor de la clase. Inicializa la estructura del museo y variables de estado.
+        """
+        # Definición del grafo del museo (salas y conexiones)
+        self.salas = {
+            'Entrada': ['Prehistoria', 'Arte Moderno'],  # La entrada conecta a estas salas
+            'Prehistoria': ['Egipto', 'Entrada'],  # Prehistoria conecta a Egipto y vuelta a Entrada
+            'Egipto': ['Grecia', 'Prehistoria'],  # Egipto conecta a Grecia y vuelta a Prehistoria
+            'Grecia': ['Roma', 'Egipto'],  # Grecia conecta a Roma y vuelta a Egipto
+            'Roma': ['Arte Moderno', 'Grecia'],  # Roma conecta a Arte Moderno y vuelta a Grecia
+            'Arte Moderno': ['Salida', 'Roma', 'Entrada'],  # Arte Moderno tiene 3 opciones
+            'Salida': ['Entrada']  # La salida solo vuelve a la entrada (ciclo cerrado)
+        }
+        
+        # Generación de la matriz de transición estacionaria
+        self.transicion = self._crear_matriz_estacionaria()
+        
+        # Cálculo de la distribución estacionaria de visitantes
+        self.dist_estacionaria = self._calcular_distribucion_estacionaria()
+        
+        # Inicialización del conteo de visitantes en cada sala
+        self.visitantes = {sala: 0 for sala in self.salas}  # Diccionario comprensivo con 0 visitantes iniciales
+
+    def _crear_matriz_estacionaria(self):
+        """
+        Construye la matriz de transición con probabilidades estacionarias.
+        Retorna:
+            dict: Matriz de transición entre salas con probabilidades
+        """
+        matriz = {}  # Inicializa matriz vacía
+        
+        # Para cada sala en el museo
+        for sala in self.salas:
+            opciones = self.salas[sala]  # Obtiene salas conectadas
+            # Calcula probabilidad uniforme (1/número de opciones)
+            prob = 1.0 / len(opciones)
+            # Asigna misma probabilidad a cada destino
+            matriz[sala] = {destino: prob for destino in opciones}
+        
+        # Ajuste especial para mantener estacionariedad:
+        # Todos los visitantes que llegan a Salida regresan a Entrada
+        matriz['Salida']['Entrada'] = 1.0  # Probabilidad 100%
+        
+        return matriz
+
+    def _calcular_distribucion_estacionaria(self):
+        """
+        Calcula la distribución estacionaria mediante simulación Monte Carlo.
+        Retorna:
+            dict: Distribución porcentual de visitantes en estado estacionario
+        """
+        contador = defaultdict(int)  # Diccionario para contar visitas a cada sala
+        sala_actual = 'Entrada'  # Comienza en la entrada
+        
+        # Simula 10,000 movimientos para aproximar la distribución estacionaria
+        for _ in range(10000):
+            contador[sala_actual] += 1  # Registra visita a la sala actual
+            
+            # Obtiene opciones y probabilidades para la sala actual
+            opciones = list(self.transicion[sala_actual].keys())
+            pesos = list(self.transicion[sala_actual].values())
+            
+            # Selecciona próxima sala basada en probabilidades
+            sala_actual = random.choices(opciones, weights=pesos)[0]
+        
+        total = sum(contador.values())  # Total de visitas registradas
+        # Calcula porcentaje para cada sala
+        return {sala: contador[sala]/total for sala in self.salas}
+
+    def agregar_visitantes(self, n):
+        """
+        Añade nuevos visitantes a la entrada del museo.
+        Args:
+            n (int): Número de visitantes a agregar
+        """
+        self.visitantes['Entrada'] += n  # Incrementa contador de la Entrada
+
+    def mover_visitantes(self):
+        """
+        Mueve los visitantes entre salas según las probabilidades de transición.
+        Actualiza el estado del museo.
+        """
+        nuevo_estado = {sala: 0 for sala in self.salas}  # Inicializa nuevo estado
+        
+        # Para cada sala y su cantidad de visitantes
+        for sala, cantidad in self.visitantes.items():
+            if cantidad == 0:  # Si no hay visitantes, saltar
+                continue
+                
+            # Para cada destino posible desde esta sala
+            for destino, prob in self.transicion[sala].items():
+                # Calcula cuántos visitantes se mueven (redondeado)
+                movidos = int(round(cantidad * prob))
+                # Actualiza el nuevo estado
+                nuevo_estado[destino] += movidos
+        
+        self.visitantes = nuevo_estado  # Reemplaza el estado anterior
+
+    def simular_hora(self, visitantes_entrantes):
+        """
+        Simula el paso de una hora en el museo.
+        Args:
+            visitantes_entrantes (int): Visitantes que llegan en esta hora
+        """
+        self.agregar_visitantes(visitantes_entrantes)  # Añade nuevos visitantes
+        
+        # Simula movimiento cada 15 minutos (4 veces por hora)
+        for _ in range(4):
+            self.mover_visitantes()
+        
+        self.mostrar_estado()  # Muestra resultados
+
+    def mostrar_estado(self):
+        """Muestra el estado actual del museo con formato."""
+        print("\nDistribución de visitantes:")
+        # Calcula longitud máxima de nombre de sala para alinear columnas
+        max_len = max(len(sala) for sala in self.salas)
+        
+        # Para cada sala muestra estadísticas
+        for sala in self.salas:
+            total_visitantes = sum(self.visitantes.values())
+            # Calcula porcentaje observado
+            porcentaje = self.visitantes[sala] / total_visitantes * 100 if total_visitantes > 0 else 0
+            # Porcentaje esperado en estado estacionario
+            esperado = self.dist_estacionaria[sala] * 100
+            # Imprime línea formateada
+            print(f"{sala:{max_len}} | {self.visitantes[sala]:3} visitantes | {porcentaje:5.1f}% (Esperado: {esperado:5.1f}%)")
+
+    def verificar_estacionario(self):
+        """
+        Verifica si el sistema ha alcanzado estado estacionario.
+        Retorna:
+            bool: True si está en estado estacionario (diferencia < 10%)
+        """
+        total = sum(self.visitantes.values())
+        if total == 0:  # Evita división por cero
+            return False
+        
+        diferencia = 0  # Acumulador de diferencias
+        # Compara distribución actual con la estacionaria
+        for sala in self.salas:
+            observado = self.visitantes[sala] / total
+            esperado = self.dist_estacionaria[sala]
+            diferencia += abs(observado - esperado)  # Suma diferencias absolutas
+        
+        # Retorna True si la diferencia acumulada es menor al 10%
+        return diferencia < 0.1
+
+def simulacion_museo():
+    """Función principal que ejecuta la simulación completa."""
+    print("🏛 Simulación de Flujo de Visitantes en Museo (Proceso Estacionario)")
+    print("================================================================")
+    
+    museo = MuseoEstacionario()  # Crea instancia del museo
+    hora = 9  # Hora inicial (9 AM)
+    
+    # Simula desde las 9 AM hasta las 6 PM (9 horas)
+    while hora < 18:
+        print(f"\n🕐 Hora: {hora}:00")
+        
+        # Determina visitantes entrantes según la hora
+        if hora == 12:  # Hora pico de almuerzo
+            entrantes = random.randint(30, 50)
+        elif 14 <= hora <= 16:  # Tarde concurrida
+            entrantes = random.randint(20, 40)
+        else:  # Flujo normal
+            entrantes = random.randint(10, 30)
+        
+        # Ejecuta simulación para esta hora
+        museo.simular_hora(entrantes)
+        
+        # Verifica y muestra si alcanzó estado estacionario
+        if museo.verificar_estacionario():
+            print("\n✅ El sistema ha alcanzado estado estacionario!")
+        
+        hora += 1  # Avanza una hora
+
+if __name__ == "__main__":
+    simulacion_museo()  # Ejecuta la simulación al correr el script
