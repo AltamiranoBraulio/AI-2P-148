@@ -1,0 +1,89 @@
+{
+  "nombre": "Ontología Médica",
+  "dominio": "Diagnóstico de enfermedades",
+  "conceptos": {
+    "Paciente": {
+      "descripcion": "Persona que recibe atención médica",
+      "superclases": [],
+      "propiedades": {
+        "tieneSíntoma": {
+          "tipo": "Síntoma",
+          "cardinalidad": "muchos",
+          "inversa": null
+        }
+      },
+      "individuos": {}
+    },
+    "Síntoma": {
+      "descripcion": "Manifestación clínica",
+      "superclases": [],
+      "propiedades": {},
+      "individuos": {
+        "fiebre": {
+          "intensidad": "alta"
+        },
+        "tos": {
+          "intensidad": "moderada"
+        }
+      }
+    },
+    "Enfermedad": {
+      "descripcion": "Condición médica anormal",
+      "superclases": [],
+      "propiedades": {
+        "tieneTratamiento": {
+          "tipo": "Tratamiento",
+          "cardinalidad": "muchos",
+          "inversa": null
+        }
+      },
+      "individuos": {}
+    },
+    "Tratamiento": {
+      "descripcion": "Intervención terapéutica",
+      "superclases": [],
+      "propiedades": {},
+      "individuos": {
+        "reposo": {},
+        "antiviral": {
+          "tipo": "oseltamivir"
+        }
+      }
+    },
+    "EnfermedadInfecciosa": {
+      "descripcion": "Causada por patógenos",
+      "superclases": [
+        "Enfermedad"
+      ],
+      "propiedades": {
+        "causadoPor": {
+          "tipo": "Virus",
+          "cardinalidad": "muchos",
+          "inversa": null
+        }
+      },
+      "individuos": {
+        "gripe": {
+          "tieneTratamiento": [
+            "reposo",
+            "antiviral"
+          ],
+          "causadoPor": [
+            "influenza"
+          ]
+        }
+      }
+    },
+    "Virus": {
+      "descripcion": "Agente infeccioso microscópico",
+      "superclases": [],
+      "propiedades": {},
+      "individuos": {
+        "influenza": {
+          "familia": "Orthomyxoviridae"
+        }
+      }
+    }
+  },
+  "propiedades_globales": {}
+}
