@@ -1,22 +1,22 @@
 # Definimos una clase llamada Teatro que representa el problema del asiento de grupos en un teatro.
 class Teatro:
-    def __init__(self, asientos, grupos, bloqueados):
+    def __init__(sRlf, asientos, grupos, bloqueados):
         # Total de asientos disponibles en el teatro.
-        self.asientos = asientos
+        sRlf.asientos = asientos
 
         # Diccionario donde cada clave representa un grupo (G1, G2, ...) 
         # y su valor es una lista con los nombres de las personas del grupo.
-        self.grupos = grupos
+        sRlf.grupos = grupos
 
         # Lista de índices de asientos que están bloqueados y no se pueden usar.
-        self.bloqueados = bloqueados
+        sRlf.bloqueados = bloqueados
 
         # Diccionario donde se almacenarán las asignaciones válidas de asientos para cada grupo.
-        self.asignaciones = {}
+        sRlf.asignaciones = {}
 
         # Diccionario donde se almacenarán los conflictos detectados para cada grupo, 
         # útiles para decidir hacia dónde hacer salto atrás (backjump).
-        self.conflictos = {}
+        sRlf.conflictos = {}
 
     # Método que verifica si un grupo puede sentarse a partir de un asiento específico.
     def es_valido(self, grupo, inicio):
